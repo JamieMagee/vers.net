@@ -1,145 +1,148 @@
-using Xunit;
-
 namespace Vers.Tests;
 
 public class VersRangeParseTests
 {
-    [Fact]
-    public void Parse_SimpleEquality()
+    [Test]
+    public async Task Parse_SimpleEquality()
     {
         var v = VersRange.Parse("vers:npm/1.2.3");
-        Assert.Equal("npm", v.Scheme);
-        Assert.Single(v.Constraints);
-        Assert.Equal(Comparator.Equal, v.Constraints[0].Comparator);
-        Assert.Equal("1.2.3", v.Constraints[0].Version);
+        await Assert.That(v.Scheme).IsEqualTo("npm");
+        await Assert.That(v.Constraints).Count().IsEqualTo(1);
+        await Assert.That(v.Constraints[0].Comparator).IsEqualTo(Comparator.Equal);
+        await Assert.That(v.Constraints[0].Version).IsEqualTo("1.2.3");
     }
 
-    [Fact]
-    public void Parse_MultipleConstraints()
+    [Test]
+    public async Task Parse_MultipleConstraints()
     {
         var v = VersRange.Parse("vers:npm/>=1.0.0|<3.0.0");
-        Assert.Equal("npm", v.Scheme);
-        Assert.Equal(2, v.Constraints.Count);
-        Assert.Equal(Comparator.GreaterThanOrEqual, v.Constraints[0].Comparator);
-        Assert.Equal("1.0.0", v.Constraints[0].Version);
-        Assert.Equal(Comparator.LessThan, v.Constraints[1].Comparator);
-        Assert.Equal("3.0.0", v.Constraints[1].Version);
+        await Assert.That(v.Scheme).IsEqualTo("npm");
+        await Assert.That(v.Constraints).Count().IsEqualTo(2);
+        await Assert.That(v.Constraints[0].Comparator).IsEqualTo(Comparator.GreaterThanOrEqual);
+        await Assert.That(v.Constraints[0].Version).IsEqualTo("1.0.0");
+        await Assert.That(v.Constraints[1].Comparator).IsEqualTo(Comparator.LessThan);
+        await Assert.That(v.Constraints[1].Version).IsEqualTo("3.0.0");
     }
 
-    [Fact]
-    public void Parse_Wildcard()
+    [Test]
+    public async Task Parse_Wildcard()
     {
         var v = VersRange.Parse("vers:deb/*");
-        Assert.Equal("deb", v.Scheme);
-        Assert.Single(v.Constraints);
-        Assert.Equal(Comparator.Wildcard, v.Constraints[0].Comparator);
+        await Assert.That(v.Scheme).IsEqualTo("deb");
+        await Assert.That(v.Constraints).Count().IsEqualTo(1);
+        await Assert.That(v.Constraints[0].Comparator).IsEqualTo(Comparator.Wildcard);
     }
 
-    [Fact]
-    public void Parse_EnumeratedVersions()
+    [Test]
+    public async Task Parse_EnumeratedVersions()
     {
         var v = VersRange.Parse("vers:pypi/0.0.0|0.0.1|0.0.2|1.0|2.0pre1");
-        Assert.Equal("pypi", v.Scheme);
-        Assert.Equal(5, v.Constraints.Count);
-        Assert.All(v.Constraints, c => Assert.Equal(Comparator.Equal, c.Comparator));
+        await Assert.That(v.Scheme).IsEqualTo("pypi");
+        await Assert.That(v.Constraints).Count().IsEqualTo(5);
     }
 
-    [Fact]
-    public void Parse_IgnoresSpaces()
+    [Test]
+    public async Task Parse_IgnoresSpaces()
     {
         var v = VersRange.Parse("vers : npm / >= 1.0.0 | < 3.0.0");
-        Assert.Equal("npm", v.Scheme);
-        Assert.Equal(2, v.Constraints.Count);
+        await Assert.That(v.Scheme).IsEqualTo("npm");
+        await Assert.That(v.Constraints).Count().IsEqualTo(2);
     }
 
-    [Fact]
-    public void Parse_SchemeIsLowercase()
+    [Test]
+    public async Task Parse_SchemeIsLowercase()
     {
         var v = VersRange.Parse("vers:NPM/1.0.0");
-        Assert.Equal("npm", v.Scheme);
+        await Assert.That(v.Scheme).IsEqualTo("npm");
     }
 
-    [Fact]
-    public void Parse_ThrowsOnMissingColon()
+    [Test]
+    public async Task Parse_ThrowsOnMissingColon()
     {
-        Assert.Throws<VersException>(() => VersRange.Parse("versnpm/1.0.0"));
+        var ex = Assert.Throws<VersException>(() => VersRange.Parse("versnpm/1.0.0"));
+        await Assert.That(ex).IsNotNull();
     }
 
-    [Fact]
-    public void Parse_ThrowsOnWrongScheme()
+    [Test]
+    public async Task Parse_ThrowsOnWrongScheme()
     {
-        Assert.Throws<VersException>(() => VersRange.Parse("purl:npm/1.0.0"));
+        var ex = Assert.Throws<VersException>(() => VersRange.Parse("purl:npm/1.0.0"));
+        await Assert.That(ex).IsNotNull();
     }
 
-    [Fact]
-    public void Parse_ThrowsOnMissingSlash()
+    [Test]
+    public async Task Parse_ThrowsOnMissingSlash()
     {
-        Assert.Throws<VersException>(() => VersRange.Parse("vers:npm"));
+        var ex = Assert.Throws<VersException>(() => VersRange.Parse("vers:npm"));
+        await Assert.That(ex).IsNotNull();
     }
 
-    [Fact]
-    public void Parse_ThrowsOnEmptyConstraints()
+    [Test]
+    public async Task Parse_ThrowsOnEmptyConstraints()
     {
-        Assert.Throws<VersException>(() => VersRange.Parse("vers:npm/"));
+        var ex = Assert.Throws<VersException>(() => VersRange.Parse("vers:npm/"));
+        await Assert.That(ex).IsNotNull();
     }
 
-    [Fact]
-    public void Parse_MavenComplexRange()
+    [Test]
+    public async Task Parse_MavenComplexRange()
     {
         var v = VersRange.Parse(
             "vers:maven/>=1.0.0-beta1|<=1.7.5|>=7.0.0-M1|<=7.0.7|>=7.1.0|<=7.1.2|>=8.0.0-M1|<=8.0.1"
         );
-        Assert.Equal("maven", v.Scheme);
-        Assert.Equal(8, v.Constraints.Count);
+        await Assert.That(v.Scheme).IsEqualTo("maven");
+        await Assert.That(v.Constraints).Count().IsEqualTo(8);
     }
 
-    [Fact]
-    public void ToString_RoundTrips()
+    [Test]
+    public async Task ToString_RoundTrips()
     {
         var input = "vers:npm/>=1.0.0|<3.0.0";
         var v = VersRange.Parse(input);
-        Assert.Equal(input, v.ToString());
+        await Assert.That(v.ToString()).IsEqualTo(input);
     }
 
-    [Fact]
-    public void ToString_Wildcard()
+    [Test]
+    public async Task ToString_Wildcard()
     {
-        Assert.Equal("vers:deb/*", VersRange.Parse("vers:deb/*").ToString());
+        await Assert.That(VersRange.Parse("vers:deb/*").ToString()).IsEqualTo("vers:deb/*");
     }
 
-    [Fact]
-    public void ToString_EqualityOmitsComparator()
+    [Test]
+    public async Task ToString_EqualityOmitsComparator()
     {
-        Assert.Equal("vers:npm/1.2.3", VersRange.Parse("vers:npm/1.2.3").ToString());
+        await Assert.That(VersRange.Parse("vers:npm/1.2.3").ToString()).IsEqualTo("vers:npm/1.2.3");
     }
 
-    [Fact]
-    public void Parse_NoneScheme_OnlyWildcard()
+    [Test]
+    public async Task Parse_NoneScheme_OnlyWildcard()
     {
         var v = VersRange.Parse("vers:none/*");
-        Assert.Equal("none", v.Scheme);
-        Assert.Single(v.Constraints);
-        Assert.Equal(Comparator.Wildcard, v.Constraints[0].Comparator);
+        await Assert.That(v.Scheme).IsEqualTo("none");
+        await Assert.That(v.Constraints).Count().IsEqualTo(1);
+        await Assert.That(v.Constraints[0].Comparator).IsEqualTo(Comparator.Wildcard);
     }
 
-    [Fact]
-    public void Parse_AllScheme_OnlyWildcard()
+    [Test]
+    public async Task Parse_AllScheme_OnlyWildcard()
     {
         var v = VersRange.Parse("vers:all/*");
-        Assert.Equal("all", v.Scheme);
+        await Assert.That(v.Scheme).IsEqualTo("all");
     }
 
-    [Fact]
-    public void Parse_NoneScheme_RejectsNonWildcard()
+    [Test]
+    public async Task Parse_NoneScheme_RejectsNonWildcard()
     {
         Assert.Throws<VersException>(() => VersRange.Parse("vers:none/1.0"));
         Assert.Throws<VersException>(() => VersRange.Parse("vers:none/>=1.0"));
+        await Task.CompletedTask;
     }
 
-    [Fact]
-    public void Parse_AllScheme_RejectsNonWildcard()
+    [Test]
+    public async Task Parse_AllScheme_RejectsNonWildcard()
     {
         Assert.Throws<VersException>(() => VersRange.Parse("vers:all/1.0"));
         Assert.Throws<VersException>(() => VersRange.Parse("vers:all/>=1.0"));
+        await Task.CompletedTask;
     }
 }

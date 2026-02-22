@@ -1,53 +1,54 @@
-using Vers.Schemes;
-using Xunit;
-
 namespace Vers.Tests;
 
 public class VersRangeValidateTests
 {
-    [Fact]
-    public void Validate_WildcardAlone_IsValid()
+    [Test]
+    public async Task Validate_WildcardAlone_IsValid()
     {
         var v = VersRange.Parse("vers:npm/*");
-        v.Validate(); // should not throw
+        v.Validate();
+        await Task.CompletedTask;
     }
 
-    [Fact]
-    public void Validate_SortedConstraints_IsValid()
+    [Test]
+    public async Task Validate_SortedConstraints_IsValid()
     {
         var v = VersRange.Parse("vers:npm/>=1.0.0|<3.0.0");
-        v.Validate(); // should not throw
+        v.Validate();
+        await Task.CompletedTask;
     }
 
-    [Fact]
-    public void Validate_DisjointRanges_IsValid()
+    [Test]
+    public async Task Validate_DisjointRanges_IsValid()
     {
         var v = VersRange.Parse("vers:npm/>=1.0.0|<=1.5.0|>=3.0.0|<=4.0.0");
-        v.Validate(); // should not throw
+        v.Validate();
+        await Task.CompletedTask;
     }
 
-    [Fact]
-    public void Builder_SortsAndValidates()
+    [Test]
+    public async Task Builder_SortsAndValidates()
     {
         var v = new VersRange.Builder("npm")
             .AddConstraint(Comparator.LessThan, "3.0.0")
             .AddConstraint(Comparator.GreaterThanOrEqual, "1.0.0")
             .Build();
 
-        Assert.Equal("vers:npm/>=1.0.0|<3.0.0", v.ToString());
+        await Assert.That(v.ToString()).IsEqualTo("vers:npm/>=1.0.0|<3.0.0");
     }
 
-    [Fact]
-    public void Builder_Wildcard()
+    [Test]
+    public async Task Builder_Wildcard()
     {
         var v = new VersRange.Builder("deb").AddWildcard().Build();
 
-        Assert.Equal("vers:deb/*", v.ToString());
+        await Assert.That(v.ToString()).IsEqualTo("vers:deb/*");
     }
 
-    [Fact]
-    public void Builder_ThrowsOnNoConstraints()
+    [Test]
+    public async Task Builder_ThrowsOnNoConstraints()
     {
-        Assert.Throws<VersException>(() => new VersRange.Builder("npm").Build());
+        var ex = Assert.Throws<VersException>(() => new VersRange.Builder("npm").Build());
+        await Assert.That(ex).IsNotNull();
     }
 }

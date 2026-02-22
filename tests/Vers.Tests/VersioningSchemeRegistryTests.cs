@@ -1,36 +1,34 @@
-using Xunit;
-
 namespace Vers.Tests;
 
 public class VersioningSchemeRegistryTests
 {
-    [Theory]
-    [InlineData("npm")]
-    [InlineData("semver")]
-    [InlineData("golang")]
-    [InlineData("cargo")]
-    [InlineData("generic")]
-    [InlineData("intdot")]
-    [InlineData("lexicographic")]
-    [InlineData("datetime")]
-    public void BuiltInSchemes_AreRegistered(string scheme)
+    [Test]
+    [Arguments("npm")]
+    [Arguments("semver")]
+    [Arguments("golang")]
+    [Arguments("cargo")]
+    [Arguments("generic")]
+    [Arguments("intdot")]
+    [Arguments("lexicographic")]
+    [Arguments("datetime")]
+    public async Task BuiltInSchemes_AreRegistered(string scheme)
     {
-        Assert.True(VersioningSchemeRegistry.IsKnown(scheme));
-        Assert.NotNull(VersioningSchemeRegistry.Get(scheme));
+        await Assert.That(VersioningSchemeRegistry.IsKnown(scheme)).IsTrue();
+        await Assert.That(VersioningSchemeRegistry.Get(scheme)).IsNotNull();
     }
 
-    [Fact]
-    public void UnknownScheme_FallsBackToGeneric()
+    [Test]
+    public async Task UnknownScheme_FallsBackToGeneric()
     {
         var comparer = VersioningSchemeRegistry.GetComparer("unknown-scheme");
-        Assert.IsType<Schemes.GenericVersionComparer>(comparer);
+        await Assert.That(comparer).IsTypeOf<Schemes.GenericVersionComparer>();
     }
 
-    [Fact]
-    public void Register_CustomScheme()
+    [Test]
+    public async Task Register_CustomScheme()
     {
         var custom = new VersioningScheme("myscheme", Schemes.GenericVersionComparer.Instance);
         VersioningSchemeRegistry.Register(custom);
-        Assert.True(VersioningSchemeRegistry.IsKnown("myscheme"));
+        await Assert.That(VersioningSchemeRegistry.IsKnown("myscheme")).IsTrue();
     }
 }

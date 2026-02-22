@@ -1,74 +1,79 @@
 using Vers.Schemes;
-using Xunit;
 
 namespace Vers.Tests;
 
 public class VersionConstraintTests
 {
-    [Theory]
-    [InlineData(">=1.2.3", Comparator.GreaterThanOrEqual, "1.2.3")]
-    [InlineData("<=1.2.3", Comparator.LessThanOrEqual, "1.2.3")]
-    [InlineData("!=1.2.3", Comparator.NotEqual, "1.2.3")]
-    [InlineData("<1.2.3", Comparator.LessThan, "1.2.3")]
-    [InlineData(">1.2.3", Comparator.GreaterThan, "1.2.3")]
-    [InlineData("1.2.3", Comparator.Equal, "1.2.3")]
-    [InlineData("*", Comparator.Wildcard, "")]
-    public void Parse_ParsesCorrectly(string input, Comparator expectedComp, string expectedVersion)
+    [Test]
+    [Arguments(">=1.2.3", Comparator.GreaterThanOrEqual, "1.2.3")]
+    [Arguments("<=1.2.3", Comparator.LessThanOrEqual, "1.2.3")]
+    [Arguments("!=1.2.3", Comparator.NotEqual, "1.2.3")]
+    [Arguments("<1.2.3", Comparator.LessThan, "1.2.3")]
+    [Arguments(">1.2.3", Comparator.GreaterThan, "1.2.3")]
+    [Arguments("1.2.3", Comparator.Equal, "1.2.3")]
+    [Arguments("*", Comparator.Wildcard, "")]
+    public async Task Parse_ParsesCorrectly(
+        string input,
+        Comparator expectedComp,
+        string expectedVersion
+    )
     {
         var constraint = VersionConstraint.Parse(input);
-        Assert.Equal(expectedComp, constraint.Comparator);
-        Assert.Equal(expectedVersion, constraint.Version);
+        await Assert.That(constraint.Comparator).IsEqualTo(expectedComp);
+        await Assert.That(constraint.Version).IsEqualTo(expectedVersion);
     }
 
-    [Fact]
-    public void Parse_ThrowsOnEmpty()
+    [Test]
+    public async Task Parse_ThrowsOnEmpty()
     {
-        Assert.Throws<VersException>(() => VersionConstraint.Parse(""));
+        var ex = Assert.Throws<VersException>(() => VersionConstraint.Parse(""));
+        await Assert.That(ex).IsNotNull();
     }
 
-    [Fact]
-    public void Parse_ThrowsOnComparatorOnly()
+    [Test]
+    public async Task Parse_ThrowsOnComparatorOnly()
     {
-        Assert.Throws<VersException>(() => VersionConstraint.Parse(">="));
+        var ex = Assert.Throws<VersException>(() => VersionConstraint.Parse(">="));
+        await Assert.That(ex).IsNotNull();
     }
 
-    [Theory]
-    [InlineData(">=1.2.3", ">=1.2.3")]
-    [InlineData("1.2.3", "1.2.3")]
-    [InlineData("*", "*")]
-    [InlineData("!=2.0", "!=2.0")]
-    public void ToString_ProducesCanonicalForm(string input, string expected)
+    [Test]
+    [Arguments(">=1.2.3", ">=1.2.3")]
+    [Arguments("1.2.3", "1.2.3")]
+    [Arguments("*", "*")]
+    [Arguments("!=2.0", "!=2.0")]
+    public async Task ToString_ProducesCanonicalForm(string input, string expected)
     {
-        Assert.Equal(expected, VersionConstraint.Parse(input).ToString());
+        await Assert.That(VersionConstraint.Parse(input).ToString()).IsEqualTo(expected);
     }
 
-    [Fact]
-    public void Parse_UrlDecodesVersion()
+    [Test]
+    public async Task Parse_UrlDecodesVersion()
     {
         var c = VersionConstraint.Parse(">=%3E1.0");
-        Assert.Equal(Comparator.GreaterThanOrEqual, c.Comparator);
-        Assert.Equal(">1.0", c.Version);
+        await Assert.That(c.Comparator).IsEqualTo(Comparator.GreaterThanOrEqual);
+        await Assert.That(c.Version).IsEqualTo(">1.0");
     }
 
-    [Fact]
-    public void Matches_Wildcard_AlwaysTrue()
+    [Test]
+    public async Task Matches_Wildcard_AlwaysTrue()
     {
         var c = new VersionConstraint(Comparator.Wildcard, "");
-        Assert.True(c.Matches("anything", GenericVersionComparer.Instance));
+        await Assert.That(c.Matches("anything", GenericVersionComparer.Instance)).IsTrue();
     }
 
-    [Theory]
-    [InlineData(Comparator.Equal, "1.0.0", "1.0.0", true)]
-    [InlineData(Comparator.Equal, "1.0.0", "2.0.0", false)]
-    [InlineData(Comparator.NotEqual, "1.0.0", "2.0.0", true)]
-    [InlineData(Comparator.NotEqual, "1.0.0", "1.0.0", false)]
-    [InlineData(Comparator.GreaterThan, "1.0.0", "2.0.0", true)]
-    [InlineData(Comparator.GreaterThan, "1.0.0", "1.0.0", false)]
-    [InlineData(Comparator.GreaterThanOrEqual, "1.0.0", "1.0.0", true)]
-    [InlineData(Comparator.LessThan, "2.0.0", "1.0.0", true)]
-    [InlineData(Comparator.LessThan, "2.0.0", "2.0.0", false)]
-    [InlineData(Comparator.LessThanOrEqual, "2.0.0", "2.0.0", true)]
-    public void Matches_WithSemver(
+    [Test]
+    [Arguments(Comparator.Equal, "1.0.0", "1.0.0", true)]
+    [Arguments(Comparator.Equal, "1.0.0", "2.0.0", false)]
+    [Arguments(Comparator.NotEqual, "1.0.0", "2.0.0", true)]
+    [Arguments(Comparator.NotEqual, "1.0.0", "1.0.0", false)]
+    [Arguments(Comparator.GreaterThan, "1.0.0", "2.0.0", true)]
+    [Arguments(Comparator.GreaterThan, "1.0.0", "1.0.0", false)]
+    [Arguments(Comparator.GreaterThanOrEqual, "1.0.0", "1.0.0", true)]
+    [Arguments(Comparator.LessThan, "2.0.0", "1.0.0", true)]
+    [Arguments(Comparator.LessThan, "2.0.0", "2.0.0", false)]
+    [Arguments(Comparator.LessThanOrEqual, "2.0.0", "2.0.0", true)]
+    public async Task Matches_WithSemver(
         Comparator comparator,
         string constraintVersion,
         string tested,
@@ -76,6 +81,6 @@ public class VersionConstraintTests
     )
     {
         var c = new VersionConstraint(comparator, constraintVersion);
-        Assert.Equal(expected, c.Matches(tested, SemverVersionComparer.Instance));
+        await Assert.That(c.Matches(tested, SemverVersionComparer.Instance)).IsEqualTo(expected);
     }
 }

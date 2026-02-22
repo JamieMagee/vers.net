@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using Xunit;
 
 namespace Vers.Conformance;
 
@@ -17,7 +12,12 @@ public class ConformanceTests
         "TestData"
     );
 
-    public static IEnumerable<object[]> ContainmentTestData()
+    public static IEnumerable<(
+        int Index,
+        string Vers,
+        string Version,
+        bool Expected
+    )> ContainmentTestData()
     {
         int index = 0;
         foreach (var file in GetTestFiles())
@@ -35,12 +35,14 @@ public class ConformanceTests
                 var version = input.GetProperty("version").GetString()!;
                 var expected = test.ExpectedOutput.GetBoolean();
 
-                yield return new object[] { index++, vers, version, expected };
+                yield return (index++, vers, version, expected);
             }
         }
     }
 
-    public static IEnumerable<object[]> ComparisonTestData()
+    public static IEnumerable<
+        Func<(int Index, string Scheme, string[] InputVersions, string[] ExpectedSorted)>
+    > ComparisonTestData()
     {
         int index = 0;
         foreach (var file in GetTestFiles())
@@ -65,12 +67,19 @@ public class ConformanceTests
                     .Select(v => v.GetString()!)
                     .ToArray();
 
-                yield return new object[] { index++, scheme, versions, expected };
+                var idx = index++;
+                yield return () => (idx, scheme, versions, expected);
             }
         }
     }
 
-    public static IEnumerable<object[]> EqualityTestData()
+    public static IEnumerable<(
+        int Index,
+        string Scheme,
+        string Version1,
+        string Version2,
+        bool Expected
+    )> EqualityTestData()
     {
         int index = 0;
         foreach (var file in GetTestFiles())
@@ -92,23 +101,23 @@ public class ConformanceTests
                     .ToArray();
                 var expected = test.ExpectedOutput.GetBoolean();
 
-                yield return new object[] { index++, scheme, versions[0], versions[1], expected };
+                yield return (index++, scheme, versions[0], versions[1], expected);
             }
         }
     }
 
-    [Theory]
-    [MemberData(nameof(ContainmentTestData))]
-    public void Containment(int _index, string vers, string version, bool expected)
+    [Test]
+    [MethodDataSource(nameof(ContainmentTestData))]
+    public async Task Containment(int index, string vers, string version, bool expected)
     {
         var range = VersRange.Parse(vers);
-        Assert.Equal(expected, range.Contains(version));
+        await Assert.That(range.Contains(version)).IsEqualTo(expected);
     }
 
-    [Theory]
-    [MemberData(nameof(ComparisonTestData))]
-    public void Comparison(
-        int _index,
+    [Test]
+    [MethodDataSource(nameof(ComparisonTestData))]
+    public async Task Comparison(
+        int index,
         string scheme,
         string[] inputVersions,
         string[] expectedSorted
@@ -119,16 +128,22 @@ public class ConformanceTests
             .Select(v => comparer.Normalize(v))
             .OrderBy(v => v, Comparer<string>.Create((a, b) => comparer.Compare(a, b)))
             .ToArray();
-        Assert.Equal(expectedSorted, sorted);
+        await Assert.That(sorted).IsEquivalentTo(expectedSorted);
     }
 
-    [Theory]
-    [MemberData(nameof(EqualityTestData))]
-    public void Equality(int _index, string scheme, string version1, string version2, bool expected)
+    [Test]
+    [MethodDataSource(nameof(EqualityTestData))]
+    public async Task Equality(
+        int index,
+        string scheme,
+        string version1,
+        string version2,
+        bool expected
+    )
     {
         var comparer = VersioningSchemeRegistry.GetComparer(scheme);
         var result = comparer.Compare(version1, version2) == 0;
-        Assert.Equal(expected, result);
+        await Assert.That(result).IsEqualTo(expected);
     }
 
     private static IEnumerable<string> GetTestFiles()
