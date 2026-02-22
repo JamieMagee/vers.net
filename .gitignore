@@ -1,0 +1,14 @@
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.nupkg
+*.snupkg
+*.user
+*.suo
+*.sln.docstates
+.vs/
+project.lock.json
+*.nuget.props
+*.nuget.targets
+TestResults/
