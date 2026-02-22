@@ -19,6 +19,7 @@ public class ConformanceTests
 
     public static IEnumerable<object[]> ContainmentTestData()
     {
+        int index = 0;
         foreach (var file in GetTestFiles())
         {
             var tests = LoadTests(file);
@@ -34,13 +35,14 @@ public class ConformanceTests
                 var version = input.GetProperty("version").GetString()!;
                 var expected = test.ExpectedOutput.GetBoolean();
 
-                yield return new object[] { test.Description, vers, version, expected };
+                yield return new object[] { index++, vers, version, expected };
             }
         }
     }
 
     public static IEnumerable<object[]> ComparisonTestData()
     {
+        int index = 0;
         foreach (var file in GetTestFiles())
         {
             var tests = LoadTests(file);
@@ -63,13 +65,14 @@ public class ConformanceTests
                     .Select(v => v.GetString()!)
                     .ToArray();
 
-                yield return new object[] { test.Description, scheme, versions, expected };
+                yield return new object[] { index++, scheme, versions, expected };
             }
         }
     }
 
     public static IEnumerable<object[]> EqualityTestData()
     {
+        int index = 0;
         foreach (var file in GetTestFiles())
         {
             var tests = LoadTests(file);
@@ -89,21 +92,14 @@ public class ConformanceTests
                     .ToArray();
                 var expected = test.ExpectedOutput.GetBoolean();
 
-                yield return new object[]
-                {
-                    test.Description,
-                    scheme,
-                    versions[0],
-                    versions[1],
-                    expected,
-                };
+                yield return new object[] { index++, scheme, versions[0], versions[1], expected };
             }
         }
     }
 
     [Theory]
     [MemberData(nameof(ContainmentTestData))]
-    public void Containment(string _description, string vers, string version, bool expected)
+    public void Containment(int _index, string vers, string version, bool expected)
     {
         var range = VersRange.Parse(vers);
         Assert.Equal(expected, range.Contains(version));
@@ -112,7 +108,7 @@ public class ConformanceTests
     [Theory]
     [MemberData(nameof(ComparisonTestData))]
     public void Comparison(
-        string _description,
+        int _index,
         string scheme,
         string[] inputVersions,
         string[] expectedSorted
@@ -128,13 +124,7 @@ public class ConformanceTests
 
     [Theory]
     [MemberData(nameof(EqualityTestData))]
-    public void Equality(
-        string _description,
-        string scheme,
-        string version1,
-        string version2,
-        bool expected
-    )
+    public void Equality(int _index, string scheme, string version1, string version2, bool expected)
     {
         var comparer = VersioningSchemeRegistry.GetComparer(scheme);
         var result = comparer.Compare(version1, version2) == 0;
