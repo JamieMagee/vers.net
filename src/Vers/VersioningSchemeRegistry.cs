@@ -26,6 +26,7 @@ public static class VersioningSchemeRegistry
         var datetime = new DatetimeVersionComparer();
         var maven = new MavenVersionComparer();
         var nuget = new NuGetVersionComparer();
+        var gentoo = new GentooVersionComparer();
 
         RegisterBuiltIn("semver", semver);
         RegisterBuiltIn("npm", semver);
@@ -41,6 +42,11 @@ public static class VersioningSchemeRegistry
 
         RegisterBuiltIn("maven", maven);
         RegisterBuiltIn("nuget", nuget);
+
+        RegisterBuiltIn("gentoo", gentoo);
+        RegisterBuiltIn("ebuild", gentoo);
+        RegisterBuiltIn("alpine", gentoo);
+        RegisterBuiltIn("apk", gentoo);
 
         RegisterBuiltIn("none", generic);
         RegisterBuiltIn("all", generic);
