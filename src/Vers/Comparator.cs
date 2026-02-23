@@ -20,25 +20,17 @@ public static class ComparatorExtensions
 {
     public static string ToSymbol(this Comparator comparator)
     {
-        switch (comparator)
+        return comparator switch
         {
-            case Comparator.LessThan:
-                return "<";
-            case Comparator.LessThanOrEqual:
-                return "<=";
-            case Comparator.Equal:
-                return "=";
-            case Comparator.NotEqual:
-                return "!=";
-            case Comparator.GreaterThan:
-                return ">";
-            case Comparator.GreaterThanOrEqual:
-                return ">=";
-            case Comparator.Wildcard:
-                return "*";
-            default:
-                throw new ArgumentOutOfRangeException(nameof(comparator));
-        }
+            Comparator.LessThan => "<",
+            Comparator.LessThanOrEqual => "<=",
+            Comparator.Equal => "=",
+            Comparator.NotEqual => "!=",
+            Comparator.GreaterThan => ">",
+            Comparator.GreaterThanOrEqual => ">=",
+            Comparator.Wildcard => "*",
+            _ => throw new ArgumentOutOfRangeException(nameof(comparator)),
+        };
     }
 
     /// <summary>

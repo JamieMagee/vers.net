@@ -5,16 +5,11 @@ namespace Vers;
 /// <summary>
 /// An immutable version constraint consisting of a comparator and a version string.
 /// </summary>
-public sealed class VersionConstraint : IEquatable<VersionConstraint>
+public sealed class VersionConstraint(Comparator comparator, string version)
+    : IEquatable<VersionConstraint>
 {
-    public Comparator Comparator { get; }
-    public string Version { get; }
-
-    public VersionConstraint(Comparator comparator, string version)
-    {
-        Comparator = comparator;
-        Version = version ?? throw new ArgumentNullException(nameof(version));
-    }
+    public Comparator Comparator { get; } = comparator;
+    public string Version { get; } = version ?? throw new ArgumentNullException(nameof(version));
 
     /// <summary>
     /// Parses a single version constraint string such as "&gt;=1.2.3" or "1.2.3".
@@ -83,23 +78,16 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
         }
 
         int cmp = comparer.Compare(testedVersion, Version);
-        switch (Comparator)
+        return Comparator switch
         {
-            case Comparator.Equal:
-                return cmp == 0;
-            case Comparator.NotEqual:
-                return cmp != 0;
-            case Comparator.LessThan:
-                return cmp < 0;
-            case Comparator.LessThanOrEqual:
-                return cmp <= 0;
-            case Comparator.GreaterThan:
-                return cmp > 0;
-            case Comparator.GreaterThanOrEqual:
-                return cmp >= 0;
-            default:
-                return false;
-        }
+            Comparator.Equal => cmp == 0,
+            Comparator.NotEqual => cmp != 0,
+            Comparator.LessThan => cmp < 0,
+            Comparator.LessThanOrEqual => cmp <= 0,
+            Comparator.GreaterThan => cmp > 0,
+            Comparator.GreaterThanOrEqual => cmp >= 0,
+            _ => false,
+        };
     }
 
     public override string ToString()
@@ -140,7 +128,7 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
     private static string UrlEncode(string value)
     {
         // Only encode comparator/separator characters: > < = ! * | %
-        if (value.IndexOfAny(new[] { '>', '<', '=', '!', '*', '|', '%' }) < 0)
+        if (value.IndexOfAny(['>', '<', '=', '!', '*', '|', '%']) < 0)
         {
             return value;
         }

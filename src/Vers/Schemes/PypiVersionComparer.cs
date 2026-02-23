@@ -504,20 +504,12 @@ public sealed class PypiVersionComparer : IVersionComparer
 
     private static int NormalizePre(string pre)
     {
-        switch (pre)
+        return pre switch
         {
-            case "a":
-            case "alpha":
-                return KindAlpha;
-            case "b":
-            case "beta":
-                return KindBeta;
-            case "c":
-            case "rc":
-            case "preview":
-                return KindRc;
-            default:
-                return KindFinal;
-        }
+            "a" or "alpha" => KindAlpha,
+            "b" or "beta" => KindBeta,
+            "c" or "rc" or "preview" => KindRc,
+            _ => KindFinal,
+        };
     }
 }

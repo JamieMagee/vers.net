@@ -474,15 +474,11 @@ public sealed class VersRange : IEquatable<VersRange>
     //  Builder
     // -----------------------------------------------------------------
 
-    public sealed class Builder
+    public sealed class Builder(string scheme)
     {
-        private readonly string _scheme;
+        private readonly string _scheme =
+            scheme?.ToLowerInvariant() ?? throw new ArgumentNullException(nameof(scheme));
         private readonly List<VersionConstraint> _constraints = [];
-
-        public Builder(string scheme)
-        {
-            _scheme = scheme?.ToLowerInvariant() ?? throw new ArgumentNullException(nameof(scheme));
-        }
 
         public Builder AddConstraint(Comparator comparator, string version)
         {

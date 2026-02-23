@@ -299,19 +299,14 @@ public sealed class MavenVersionComparer : IVersionComparer
         }
 
         // Always apply aliases
-        switch (q)
+        return q switch
         {
-            case "ga":
-                return "";
-            case "final":
-                return "";
-            case "release":
-                return "";
-            case "cr":
-                return "rc";
-            default:
-                return q;
-        }
+            "ga" => "",
+            "final" => "",
+            "release" => "",
+            "cr" => "rc",
+            _ => q,
+        };
     }
 
     private static void TrimPadding(List<object> items)

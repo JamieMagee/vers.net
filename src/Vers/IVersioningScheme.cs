@@ -12,14 +12,8 @@ public interface IVersioningScheme
 /// <summary>
 /// Simple implementation of IVersioningScheme.
 /// </summary>
-public sealed class VersioningScheme : IVersioningScheme
+public sealed class VersioningScheme(string scheme, IVersionComparer comparer) : IVersioningScheme
 {
-    public string Scheme { get; }
-    public IVersionComparer Comparer { get; }
-
-    public VersioningScheme(string scheme, IVersionComparer comparer)
-    {
-        Scheme = scheme;
-        Comparer = comparer;
-    }
+    public string Scheme { get; } = scheme;
+    public IVersionComparer Comparer { get; } = comparer;
 }
