@@ -44,6 +44,7 @@ public static class VersioningSchemeRegistry
         RegisterBuiltIn("generic", generic);
 
         RegisterBuiltIn("intdot", intdot);
+        RegisterBuiltIn("nginx", intdot);
         RegisterBuiltIn("lexicographic", lexicographic);
         RegisterBuiltIn("datetime", datetime);
 
