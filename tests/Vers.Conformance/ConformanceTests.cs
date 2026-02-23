@@ -161,6 +161,102 @@ public class ConformanceTests
         await Assert.That(result).IsEqualTo(expected);
     }
 
+    public static IEnumerable<(
+        int Index,
+        string Scheme,
+        string NativeRange,
+        string ExpectedVers
+    )> FromNativeTestData()
+    {
+        int index = 0;
+        foreach (var file in GetTestFiles())
+        {
+            var tests = LoadTests(file);
+            foreach (var test in tests)
+            {
+                if (test.TestType != "from_native")
+                {
+                    continue;
+                }
+
+                if (test.ExpectedFailure)
+                {
+                    continue;
+                }
+
+                var input = test.Input;
+                var scheme = input.GetProperty("scheme").GetString()!;
+                var nativeRange = input.GetProperty("native_range").GetString()!;
+                var expected = test.ExpectedOutput.GetString()!;
+
+                // Only run for schemes that have a registered converter
+                if (NativeRangeConverterRegistry.Get(scheme) == null)
+                {
+                    continue;
+                }
+
+                yield return (index++, scheme, nativeRange, expected);
+            }
+        }
+    }
+
+    public static IEnumerable<(
+        int Index,
+        string InputVers,
+        string ExpectedVers
+    )> RoundtripTestData()
+    {
+        int index = 0;
+        foreach (var file in GetTestFiles())
+        {
+            var tests = LoadTests(file);
+            foreach (var test in tests)
+            {
+                if (test.TestType != "roundtrip")
+                {
+                    continue;
+                }
+
+                if (test.ExpectedFailure)
+                {
+                    continue;
+                }
+
+                var input = test.Input;
+                var inputVers = input.GetProperty("vers").GetString()!;
+                var expected = test.ExpectedOutput.GetString()!;
+
+                yield return (index++, inputVers, expected);
+            }
+        }
+    }
+
+    [Test]
+    [MethodDataSource(nameof(FromNativeTestData))]
+    public async Task FromNative(int index, string scheme, string nativeRange, string expectedVers)
+    {
+        var result = NativeRangeConverterRegistry.FromNative(scheme, nativeRange);
+        await Assert.That(result.ToString()).IsEqualTo(expectedVers);
+    }
+
+    [Test]
+    [MethodDataSource(nameof(RoundtripTestData))]
+    public async Task Roundtrip(int index, string inputVers, string expectedVers)
+    {
+        var parsed = VersRange.Parse(inputVers);
+        // Canonical form requires sorted constraints
+        var comparer = VersioningSchemeRegistry.GetComparer(parsed.Scheme);
+        var sorted = parsed
+            .Constraints.OrderBy(
+                c => c.Version,
+                Comparer<string>.Create((a, b) => comparer.Compare(a, b))
+            )
+            .ToList();
+        var canonical =
+            $"vers:{parsed.Scheme}/{string.Join("|", sorted.Select(c => c.ToString()))}";
+        await Assert.That(canonical).IsEqualTo(expectedVers);
+    }
+
     private static IEnumerable<string> GetTestFiles()
     {
         if (!Directory.Exists(TestDataDir))

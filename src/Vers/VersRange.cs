@@ -486,6 +486,12 @@ public sealed class VersRange : IEquatable<VersRange>
             return this;
         }
 
+        public Builder AddConstraints(IEnumerable<VersionConstraint> constraints)
+        {
+            _constraints.AddRange(constraints);
+            return this;
+        }
+
         public Builder AddWildcard()
         {
             _constraints.Add(new VersionConstraint(Comparator.Wildcard, ""));
@@ -514,6 +520,37 @@ public sealed class VersRange : IEquatable<VersRange>
             var result = new VersRange(_scheme, sorted.AsReadOnly());
             result.Validate(comparer);
             return result;
+        }
+
+        /// <summary>
+        /// Builds a VersRange without validation. Used by native range converters
+        /// whose output may contain patterns (duplicate comparators, non-alternating)
+        /// that are valid vers but don't pass strict validation.
+        /// </summary>
+        public VersRange BuildUnsorted()
+        {
+            if (_constraints.Count == 0)
+            {
+                throw new VersException("Cannot build a vers with no constraints.");
+            }
+
+            return new VersRange(_scheme, _constraints.AsReadOnly());
+        }
+
+        public VersRange BuildSortedNoValidation(IVersionComparer comparer)
+        {
+            if (_constraints.Count == 0)
+            {
+                throw new VersException("Cannot build a vers with no constraints.");
+            }
+
+            var sorted = _constraints.ToList();
+            if (!(sorted.Count == 1 && sorted[0].Comparator == Comparator.Wildcard))
+            {
+                sorted.Sort((a, b) => comparer.Compare(a.Version, b.Version));
+            }
+
+            return new VersRange(_scheme, sorted.AsReadOnly());
         }
     }
 
