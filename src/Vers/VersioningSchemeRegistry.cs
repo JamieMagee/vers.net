@@ -33,6 +33,7 @@ public static class VersioningSchemeRegistry
         var debian = new DebianVersionComparer();
         var conan = new ConanVersionComparer();
         var pypi = new PypiVersionComparer();
+        var gem = new GemVersionComparer();
 
         RegisterBuiltIn("semver", semver);
         RegisterBuiltIn("npm", semver);
@@ -66,6 +67,8 @@ public static class VersioningSchemeRegistry
         RegisterBuiltIn("conan", conan);
 
         RegisterBuiltIn("pypi", pypi);
+
+        RegisterBuiltIn("gem", gem);
 
         RegisterBuiltIn("none", generic);
         RegisterBuiltIn("all", generic);
