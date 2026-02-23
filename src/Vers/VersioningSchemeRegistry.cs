@@ -31,6 +31,7 @@ public static class VersioningSchemeRegistry
         var openssl = new OpensslVersionComparer();
         var alpm = new AlpmVersionComparer();
         var debian = new DebianVersionComparer();
+        var conan = new ConanVersionComparer();
 
         RegisterBuiltIn("semver", semver);
         RegisterBuiltIn("npm", semver);
@@ -60,6 +61,8 @@ public static class VersioningSchemeRegistry
         RegisterBuiltIn("arch", alpm);
 
         RegisterBuiltIn("deb", debian);
+
+        RegisterBuiltIn("conan", conan);
 
         RegisterBuiltIn("none", generic);
         RegisterBuiltIn("all", generic);
