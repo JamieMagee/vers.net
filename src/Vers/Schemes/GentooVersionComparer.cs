@@ -17,7 +17,7 @@ namespace Vers.Schemes;
 /// </summary>
 public sealed class GentooVersionComparer : IVersionComparer
 {
-    public static readonly GentooVersionComparer Instance = new GentooVersionComparer();
+    public static readonly GentooVersionComparer Instance = new();
 
     public int Compare(string version1, string version2)
     {
@@ -137,7 +137,7 @@ public sealed class GentooVersionComparer : IVersionComparer
         public int Kind;
         public long Number;
 
-        public static readonly GentooSuffix None = new GentooSuffix { Kind = 4, Number = 0 };
+        public static readonly GentooSuffix None = new() { Kind = 4, Number = 0 };
 
         public int CompareTo(GentooSuffix other)
         {

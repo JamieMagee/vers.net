@@ -8,7 +8,7 @@ namespace Vers.Schemes;
 /// </summary>
 public sealed class DatetimeVersionComparer : IVersionComparer
 {
-    public static readonly DatetimeVersionComparer Instance = new DatetimeVersionComparer();
+    public static readonly DatetimeVersionComparer Instance = new();
 
     public int Compare(string version1, string version2)
     {

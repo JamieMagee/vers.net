@@ -8,8 +8,7 @@ namespace Vers.Schemes;
 /// </summary>
 public sealed class LexicographicVersionComparer : IVersionComparer
 {
-    public static readonly LexicographicVersionComparer Instance =
-        new LexicographicVersionComparer();
+    public static readonly LexicographicVersionComparer Instance = new();
 
     public int Compare(string version1, string version2)
     {

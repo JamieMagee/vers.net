@@ -11,7 +11,7 @@ namespace Vers.Schemes;
 /// </summary>
 public sealed class NuGetVersionComparer : IVersionComparer
 {
-    public static readonly NuGetVersionComparer Instance = new NuGetVersionComparer();
+    public static readonly NuGetVersionComparer Instance = new();
 
     public int Compare(string version1, string version2)
     {

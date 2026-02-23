@@ -10,7 +10,7 @@ namespace Vers.Schemes;
 /// </summary>
 public sealed class GenericVersionComparer : IVersionComparer
 {
-    public static readonly GenericVersionComparer Instance = new GenericVersionComparer();
+    public static readonly GenericVersionComparer Instance = new();
 
     public int Compare(string version1, string version2)
     {

@@ -10,7 +10,7 @@ namespace Vers.Schemes;
 /// </summary>
 public sealed class IntdotVersionComparer : IVersionComparer
 {
-    public static readonly IntdotVersionComparer Instance = new IntdotVersionComparer();
+    public static readonly IntdotVersionComparer Instance = new();
 
     public int Compare(string version1, string version2)
     {
@@ -68,7 +68,7 @@ public sealed class IntdotVersionComparer : IVersionComparer
         var s = version.Substring(0, end);
         if (string.IsNullOrEmpty(s))
         {
-            return Array.Empty<long>();
+            return [];
         }
 
         var parts = s.Split('.');

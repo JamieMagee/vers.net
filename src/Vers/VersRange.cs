@@ -471,7 +471,7 @@ public sealed class VersRange : IEquatable<VersRange>
     public sealed class Builder
     {
         private readonly string _scheme;
-        private readonly List<VersionConstraint> _constraints = new List<VersionConstraint>();
+        private readonly List<VersionConstraint> _constraints = [];
 
         public Builder(string scheme)
         {

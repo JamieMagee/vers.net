@@ -11,7 +11,7 @@ namespace Vers.Schemes;
 /// </summary>
 public sealed class SemverVersionComparer : IVersionComparer
 {
-    public static readonly SemverVersionComparer Instance = new SemverVersionComparer();
+    public static readonly SemverVersionComparer Instance = new();
 
     public int Compare(string version1, string version2)
     {

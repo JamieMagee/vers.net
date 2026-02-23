@@ -13,7 +13,7 @@ namespace Vers.Schemes;
 /// </summary>
 public sealed class MavenVersionComparer : IVersionComparer
 {
-    public static readonly MavenVersionComparer Instance = new MavenVersionComparer();
+    public static readonly MavenVersionComparer Instance = new();
 
     public int Compare(string version1, string version2)
     {
@@ -71,7 +71,7 @@ public sealed class MavenVersionComparer : IVersionComparer
 
             if (right is List<object> lst)
             {
-                return CompareItems(new List<object>(), lst);
+                return CompareItems([], lst);
             }
 
             return 0;
@@ -91,7 +91,7 @@ public sealed class MavenVersionComparer : IVersionComparer
 
             if (left is List<object> lst)
             {
-                return CompareItems(lst, new List<object>());
+                return CompareItems(lst, []);
             }
 
             return 0;
@@ -150,9 +150,7 @@ public sealed class MavenVersionComparer : IVersionComparer
         return 0;
     }
 
-    private static readonly Dictionary<string, int> QualifierOrder = new Dictionary<string, int>(
-        StringComparer.Ordinal
-    )
+    private static readonly Dictionary<string, int> QualifierOrder = new(StringComparer.Ordinal)
     {
         { "alpha", 0 },
         { "beta", 1 },
