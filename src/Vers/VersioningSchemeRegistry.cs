@@ -30,6 +30,7 @@ public static class VersioningSchemeRegistry
         var rpm = new RpmVersionComparer();
         var openssl = new OpensslVersionComparer();
         var alpm = new AlpmVersionComparer();
+        var debian = new DebianVersionComparer();
 
         RegisterBuiltIn("semver", semver);
         RegisterBuiltIn("npm", semver);
@@ -57,6 +58,8 @@ public static class VersioningSchemeRegistry
 
         RegisterBuiltIn("alpm", alpm);
         RegisterBuiltIn("arch", alpm);
+
+        RegisterBuiltIn("deb", debian);
 
         RegisterBuiltIn("none", generic);
         RegisterBuiltIn("all", generic);
