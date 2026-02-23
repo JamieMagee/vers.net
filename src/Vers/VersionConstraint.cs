@@ -35,6 +35,14 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
 
         if (ComparatorExtensions.TryParsePrefix(s, 0, out var comparator, out var length))
         {
+            // Wildcard must be alone with no version
+            if (comparator == Comparator.Wildcard)
+            {
+                throw new VersException(
+                    $"Version constraint '{constraintString}': wildcard '*' must appear alone."
+                );
+            }
+
             var version = s.Substring(length).Trim();
             if (string.IsNullOrEmpty(version))
             {
@@ -47,8 +55,21 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
             return new VersionConstraint(comparator, version);
         }
 
-        // No comparator prefix means equality
-        return new VersionConstraint(Comparator.Equal, UrlDecode(s));
+        // No comparator prefix means equality.
+        // Handle explicit '=' prefix: strip it so "=1.2.3" becomes Equal("1.2.3").
+        var raw = s;
+        if (raw.Length > 0 && raw[0] == '=')
+        {
+            raw = raw.Substring(1).Trim();
+            if (string.IsNullOrEmpty(raw))
+            {
+                throw new VersException(
+                    $"Version constraint '{constraintString}' has '=' but no version."
+                );
+            }
+        }
+
+        return new VersionConstraint(Comparator.Equal, UrlDecode(raw));
     }
 
     /// <summary>
@@ -118,8 +139,8 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
 
     private static string UrlEncode(string value)
     {
-        // Only encode comparator/separator characters: > < = ! * |
-        if (value.IndexOfAny(new[] { '>', '<', '=', '!', '*', '|' }) < 0)
+        // Only encode comparator/separator characters: > < = ! * | %
+        if (value.IndexOfAny(new[] { '>', '<', '=', '!', '*', '|', '%' }) < 0)
         {
             return value;
         }
@@ -146,6 +167,9 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
                     break;
                 case '|':
                     sb.Append("%7C");
+                    break;
+                case '%':
+                    sb.Append("%25");
                     break;
                 default:
                     sb.Append(c);

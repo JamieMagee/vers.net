@@ -153,4 +153,19 @@ public class VersRangeParseTests
         Assert.Throws<VersException>(() => VersRange.Parse("vers:npm/>=1.0|*"));
         await Task.CompletedTask;
     }
+
+    [Test]
+    public async Task Parse_WildcardWithTrailingChars_Throws()
+    {
+        Assert.Throws<VersException>(() => VersRange.Parse("vers:npm/*foo"));
+        await Task.CompletedTask;
+    }
+
+    [Test]
+    public async Task Parse_ExplicitEqualPrefix_StripsEquals()
+    {
+        var v = VersRange.Parse("vers:npm/=1.2.3");
+        await Assert.That(v.Constraints[0].Comparator).IsEqualTo(Comparator.Equal);
+        await Assert.That(v.Constraints[0].Version).IsEqualTo("1.2.3");
+    }
 }

@@ -38,6 +38,28 @@ public class VersionConstraintTests
     }
 
     [Test]
+    public async Task Parse_WildcardWithTrailingChars_Throws()
+    {
+        var ex = Assert.Throws<VersException>(() => VersionConstraint.Parse("*foo"));
+        await Assert.That(ex).IsNotNull();
+    }
+
+    [Test]
+    public async Task Parse_ExplicitEquals_StripsPrefix()
+    {
+        var c = VersionConstraint.Parse("=1.2.3");
+        await Assert.That(c.Comparator).IsEqualTo(Comparator.Equal);
+        await Assert.That(c.Version).IsEqualTo("1.2.3");
+    }
+
+    [Test]
+    public async Task UrlEncode_EncodesPercent()
+    {
+        var c = new VersionConstraint(Comparator.Equal, "1.0%2B1");
+        await Assert.That(c.ToString()).IsEqualTo("1.0%252B1");
+    }
+
+    [Test]
     [Arguments(">=1.2.3", ">=1.2.3")]
     [Arguments("1.2.3", "1.2.3")]
     [Arguments("*", "*")]

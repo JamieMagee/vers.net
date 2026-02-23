@@ -314,13 +314,17 @@ public sealed class VersRange : IEquatable<VersRange>
             throw new VersException("Wildcard '*' must appear alone without other constraints.");
         }
 
-        // Unique versions
-        var versions = new HashSet<string>();
-        foreach (var c in constraints)
+        // Unique versions (using comparer for equality, not raw strings)
+        for (int i = 0; i < constraints.Count; i++)
         {
-            if (!versions.Add(c.Version))
+            for (int j = i + 1; j < constraints.Count; j++)
             {
-                throw new VersException($"Duplicate version '{c.Version}' in constraints.");
+                if (comparer.Compare(constraints[i].Version, constraints[j].Version) == 0)
+                {
+                    throw new VersException(
+                        $"Duplicate version '{constraints[i].Version}' in constraints."
+                    );
+                }
             }
         }
 
@@ -407,7 +411,9 @@ public sealed class VersRange : IEquatable<VersRange>
         }
 
         // Iterate and remove redundant constraints
+        // Sort remainder by version first (spec requires sorted input for simplification)
         var result = new List<VersionConstraint>(remainder);
+        result.Sort((a, b) => comparer.Compare(a.Version, b.Version));
         bool changed = true;
         while (changed)
         {
