@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.103" />
+    <PackageVersion Include="MinVer" Version="7.0.0" />
+    <PackageVersion Include="TUnit" Version="1.17.4" />
+  </ItemGroup>
+</Project>

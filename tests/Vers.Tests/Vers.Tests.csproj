@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="TUnit" Version="1.17.4" />
+    <PackageReference Include="TUnit" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Vers/Vers.csproj" />
