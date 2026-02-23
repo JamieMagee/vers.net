@@ -3,7 +3,6 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Version>0.1.0</Version>
     <Authors>Jamie Magee</Authors>
     <Description>A .NET Standard 2.0 implementation of the vers (VErsion Range Specifier) specification.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
