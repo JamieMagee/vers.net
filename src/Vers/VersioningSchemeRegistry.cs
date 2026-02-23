@@ -10,7 +10,7 @@ namespace Vers;
 /// </summary>
 public static class VersioningSchemeRegistry
 {
-    private static readonly object Lock = new object();
+    private static readonly object Lock = new();
     private static readonly Dictionary<string, IVersioningScheme> Schemes = new Dictionary<
         string,
         IVersioningScheme
@@ -27,6 +27,7 @@ public static class VersioningSchemeRegistry
         var maven = new MavenVersionComparer();
         var nuget = new NuGetVersionComparer();
         var gentoo = new GentooVersionComparer();
+        var rpm = new RpmVersionComparer();
 
         RegisterBuiltIn("semver", semver);
         RegisterBuiltIn("npm", semver);
@@ -47,6 +48,8 @@ public static class VersioningSchemeRegistry
         RegisterBuiltIn("ebuild", gentoo);
         RegisterBuiltIn("alpine", gentoo);
         RegisterBuiltIn("apk", gentoo);
+
+        RegisterBuiltIn("rpm", rpm);
 
         RegisterBuiltIn("none", generic);
         RegisterBuiltIn("all", generic);
