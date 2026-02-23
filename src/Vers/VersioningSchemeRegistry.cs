@@ -29,6 +29,7 @@ public static class VersioningSchemeRegistry
         var gentoo = new GentooVersionComparer();
         var rpm = new RpmVersionComparer();
         var openssl = new OpensslVersionComparer();
+        var alpm = new AlpmVersionComparer();
 
         RegisterBuiltIn("semver", semver);
         RegisterBuiltIn("npm", semver);
@@ -53,6 +54,9 @@ public static class VersioningSchemeRegistry
         RegisterBuiltIn("rpm", rpm);
 
         RegisterBuiltIn("openssl", openssl);
+
+        RegisterBuiltIn("alpm", alpm);
+        RegisterBuiltIn("arch", alpm);
 
         RegisterBuiltIn("none", generic);
         RegisterBuiltIn("all", generic);
