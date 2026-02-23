@@ -145,4 +145,12 @@ public class VersRangeParseTests
         Assert.Throws<VersException>(() => VersRange.Parse("vers:all/>=1.0"));
         await Task.CompletedTask;
     }
+
+    [Test]
+    public async Task Parse_WildcardWithOtherConstraints_Throws()
+    {
+        Assert.Throws<VersException>(() => VersRange.Parse("vers:npm/*|>=1.0"));
+        Assert.Throws<VersException>(() => VersRange.Parse("vers:npm/>=1.0|*"));
+        await Task.CompletedTask;
+    }
 }

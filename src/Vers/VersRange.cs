@@ -104,6 +104,16 @@ public sealed class VersRange : IEquatable<VersRange>
                 $"Invalid vers string: no constraints found in '{versString}'."
             );
 
+        // Wildcard must appear alone — reject at parse time
+        if (constraints.Any(c => c.Comparator == Comparator.Wildcard))
+        {
+            if (constraints.Count > 1)
+                throw new VersException(
+                    "Invalid vers string: wildcard '*' must appear alone without other constraints."
+                );
+            return new VersRange(scheme, constraints.AsReadOnly());
+        }
+
         return new VersRange(scheme, constraints.AsReadOnly());
     }
 
