@@ -28,6 +28,7 @@ public static class VersioningSchemeRegistry
         var nuget = new NuGetVersionComparer();
         var gentoo = new GentooVersionComparer();
         var rpm = new RpmVersionComparer();
+        var openssl = new OpensslVersionComparer();
 
         RegisterBuiltIn("semver", semver);
         RegisterBuiltIn("npm", semver);
@@ -50,6 +51,8 @@ public static class VersioningSchemeRegistry
         RegisterBuiltIn("apk", gentoo);
 
         RegisterBuiltIn("rpm", rpm);
+
+        RegisterBuiltIn("openssl", openssl);
 
         RegisterBuiltIn("none", generic);
         RegisterBuiltIn("all", generic);
