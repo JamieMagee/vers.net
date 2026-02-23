@@ -14,7 +14,9 @@ public sealed class LexicographicVersionComparer : IVersionComparer
     public int Compare(string version1, string version2)
     {
         if (version1 == version2)
+        {
             return 0;
+        }
 
         var b1 = Encoding.UTF8.GetBytes(version1);
         var b2 = Encoding.UTF8.GetBytes(version2);
@@ -24,7 +26,9 @@ public sealed class LexicographicVersionComparer : IVersionComparer
         {
             int cmp = b1[i].CompareTo(b2[i]);
             if (cmp != 0)
+            {
                 return cmp;
+            }
         }
 
         return b1.Length.CompareTo(b2.Length);

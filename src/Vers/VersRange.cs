@@ -30,7 +30,9 @@ public sealed class VersRange : IEquatable<VersRange>
     public static VersRange Parse(string versString)
     {
         if (versString == null)
+        {
             throw new ArgumentNullException(nameof(versString));
+        }
 
         // Strip spaces and tabs
         var s = StripWhitespace(versString);
@@ -38,42 +40,54 @@ public sealed class VersRange : IEquatable<VersRange>
         // Split on first ':'
         var colonIdx = s.IndexOf(':');
         if (colonIdx < 0)
+        {
             throw new VersException($"Invalid vers string: missing ':' in '{versString}'.");
+        }
 
         var uriScheme = s.Substring(0, colonIdx);
         if (!uriScheme.Equals("vers", StringComparison.OrdinalIgnoreCase))
+        {
             throw new VersException(
                 $"Invalid vers URI scheme: expected 'vers' but got '{uriScheme}'."
             );
+        }
 
         var specifier = s.Substring(colonIdx + 1);
 
         // Split on first '/'
         var slashIdx = specifier.IndexOf('/');
         if (slashIdx < 0)
+        {
             throw new VersException(
                 $"Invalid vers string: missing '/' after versioning scheme in '{versString}'."
             );
+        }
 
         var scheme = specifier.Substring(0, slashIdx).ToLowerInvariant();
         if (string.IsNullOrEmpty(scheme))
+        {
             throw new VersException(
                 $"Invalid vers string: versioning scheme is empty in '{versString}'."
             );
+        }
 
         var constraintsStr = specifier.Substring(slashIdx + 1);
         if (string.IsNullOrEmpty(constraintsStr))
+        {
             throw new VersException(
                 $"Invalid vers string: constraints are empty in '{versString}'."
             );
+        }
 
         // Enforce none/all schemes: only vers:none/* and vers:all/* are valid
         if (scheme == "none" || scheme == "all")
         {
             if (constraintsStr != "*")
+            {
                 throw new VersException(
                     $"Invalid vers string: scheme '{scheme}' only allows wildcard '*' constraint."
                 );
+            }
         }
 
         // Handle wildcard
@@ -87,30 +101,40 @@ public sealed class VersRange : IEquatable<VersRange>
         var parts = SplitOnPipe(constraintsStr);
 
         if (parts.Count == 0)
+        {
             throw new VersException(
                 $"Invalid vers string: no constraints found in '{versString}'."
             );
+        }
 
         var constraints = new List<VersionConstraint>(parts.Count);
         foreach (var part in parts)
         {
             if (string.IsNullOrEmpty(part))
+            {
                 continue;
+            }
+
             constraints.Add(VersionConstraint.Parse(part));
         }
 
         if (constraints.Count == 0)
+        {
             throw new VersException(
                 $"Invalid vers string: no constraints found in '{versString}'."
             );
+        }
 
         // Wildcard must appear alone — reject at parse time
         if (constraints.Any(c => c.Comparator == Comparator.Wildcard))
         {
             if (constraints.Count > 1)
+            {
                 throw new VersException(
                     "Invalid vers string: wildcard '*' must appear alone without other constraints."
                 );
+            }
+
             return new VersRange(scheme, constraints.AsReadOnly());
         }
 
@@ -138,15 +162,22 @@ public sealed class VersRange : IEquatable<VersRange>
     public bool Contains(string version, IVersionComparer comparer)
     {
         if (version == null)
+        {
             throw new ArgumentNullException(nameof(version));
+        }
+
         if (comparer == null)
+        {
             throw new ArgumentNullException(nameof(comparer));
+        }
 
         var constraints = Constraints;
 
         // Single wildcard → always in range (except "none" which contains no versions)
         if (constraints.Count == 1 && constraints[0].Comparator == Comparator.Wildcard)
+        {
             return Scheme != "none";
+        }
 
         // Check equality comparators (=, <=, >=)
         foreach (var c in constraints)
@@ -158,7 +189,9 @@ public sealed class VersRange : IEquatable<VersRange>
             )
             {
                 if (comparer.Compare(version, c.Version) == 0)
+                {
                     return true;
+                }
             }
         }
 
@@ -176,11 +209,15 @@ public sealed class VersRange : IEquatable<VersRange>
         foreach (var c in constraints)
         {
             if (c.Comparator != Comparator.Equal && c.Comparator != Comparator.NotEqual)
+            {
                 rangeConstraints.Add(c);
+            }
         }
 
         if (rangeConstraints.Count == 0)
+        {
             return false;
+        }
 
         // Sort range constraints by version
         rangeConstraints.Sort((a, b) => comparer.Compare(a.Version, b.Version));
@@ -206,7 +243,9 @@ public sealed class VersRange : IEquatable<VersRange>
                         ? comparer.Compare(version, current.Version) < 0
                         : comparer.Compare(version, current.Version) <= 0;
                 if (inRange)
+                {
                     return true;
+                }
             }
 
             // Last iteration: if next is > or >=, check if version > next.version
@@ -217,7 +256,9 @@ public sealed class VersRange : IEquatable<VersRange>
                         ? comparer.Compare(version, next.Version) > 0
                         : comparer.Compare(version, next.Version) >= 0;
                 if (inRange)
+                {
                     return true;
+                }
             }
 
             // If current is > or >= and next is < or <=, check interval
@@ -232,7 +273,9 @@ public sealed class VersRange : IEquatable<VersRange>
                         ? comparer.Compare(version, next.Version) < 0
                         : comparer.Compare(version, next.Version) <= 0;
                 if (aboveCurrent && belowNext)
+                {
                     return true;
+                }
             }
 
             // If current is < or <= and next is > or >=, these versions are outside the range
@@ -261,27 +304,35 @@ public sealed class VersRange : IEquatable<VersRange>
 
         // Single wildcard is always valid
         if (constraints.Count == 1 && constraints[0].Comparator == Comparator.Wildcard)
+        {
             return this;
+        }
 
         // Wildcard must be alone
         if (constraints.Any(c => c.Comparator == Comparator.Wildcard))
+        {
             throw new VersException("Wildcard '*' must appear alone without other constraints.");
+        }
 
         // Unique versions
         var versions = new HashSet<string>();
         foreach (var c in constraints)
         {
             if (!versions.Add(c.Version))
+            {
                 throw new VersException($"Duplicate version '{c.Version}' in constraints.");
+            }
         }
 
         // Verify sorted by version
         for (int i = 1; i < constraints.Count; i++)
         {
             if (comparer.Compare(constraints[i - 1].Version, constraints[i].Version) > 0)
+            {
                 throw new VersException(
                     $"Constraints are not sorted by version: '{constraints[i - 1].Version}' should come before '{constraints[i].Version}'."
                 );
+            }
         }
 
         // Comparator alternation rules (ignoring != and =):
@@ -296,13 +347,18 @@ public sealed class VersRange : IEquatable<VersRange>
             var next = filtered[i + 1].Comparator;
 
             if (curr.IsLesser() && !next.IsGreater())
+            {
                 throw new VersException(
                     $"Invalid comparator sequence: '{curr.ToSymbol()}' followed by '{next.ToSymbol()}'. Expected '>' or '>='."
                 );
+            }
+
             if (curr.IsGreater() && !next.IsLesser())
+            {
                 throw new VersException(
                     $"Invalid comparator sequence: '{curr.ToSymbol()}' followed by '{next.ToSymbol()}'. Expected '<' or '<='."
                 );
+            }
         }
 
         // = must be followed by =, >, >= (or nothing) — ignoring !=
@@ -337,14 +393,18 @@ public sealed class VersRange : IEquatable<VersRange>
     public VersRange Simplify(IVersionComparer comparer)
     {
         if (Constraints.Count <= 1)
+        {
             return this;
+        }
 
         // Split into != and remainder
         var notEquals = Constraints.Where(c => c.Comparator == Comparator.NotEqual).ToList();
         var remainder = Constraints.Where(c => c.Comparator != Comparator.NotEqual).ToList();
 
         if (remainder.Count == 0)
+        {
             return this;
+        }
 
         // Iterate and remove redundant constraints
         var result = new List<VersionConstraint>(remainder);
@@ -397,7 +457,9 @@ public sealed class VersRange : IEquatable<VersRange>
     public override string ToString()
     {
         if (Constraints.Count == 1 && Constraints[0].Comparator == Comparator.Wildcard)
+        {
             return $"vers:{Scheme}/*";
+        }
 
         return $"vers:{Scheme}/{string.Join("|", Constraints.Select(c => c.ToString()))}";
     }
@@ -436,7 +498,9 @@ public sealed class VersRange : IEquatable<VersRange>
         public VersRange Build(IVersionComparer comparer)
         {
             if (_constraints.Count == 0)
+            {
                 throw new VersException("Cannot build a vers with no constraints.");
+            }
 
             // Sort by version
             var sorted = _constraints.ToList();
@@ -458,15 +522,26 @@ public sealed class VersRange : IEquatable<VersRange>
     public bool Equals(VersRange? other)
     {
         if (other is null)
+        {
             return false;
+        }
+
         if (Scheme != other.Scheme)
+        {
             return false;
+        }
+
         if (Constraints.Count != other.Constraints.Count)
+        {
             return false;
+        }
+
         for (int i = 0; i < Constraints.Count; i++)
         {
             if (!Constraints[i].Equals(other.Constraints[i]))
+            {
                 return false;
+            }
         }
         return true;
     }
@@ -477,7 +552,10 @@ public sealed class VersRange : IEquatable<VersRange>
     {
         int hash = Scheme.GetHashCode();
         foreach (var c in Constraints)
+        {
             hash ^= c.GetHashCode();
+        }
+
         return hash;
     }
 
@@ -488,13 +566,17 @@ public sealed class VersRange : IEquatable<VersRange>
     private static string StripWhitespace(string s)
     {
         if (s.IndexOf(' ') < 0 && s.IndexOf('\t') < 0)
+        {
             return s;
+        }
 
         var sb = new System.Text.StringBuilder(s.Length);
         foreach (var c in s)
         {
             if (c != ' ' && c != '\t')
+            {
                 sb.Append(c);
+            }
         }
         return sb.ToString();
     }
@@ -506,7 +588,9 @@ public sealed class VersRange : IEquatable<VersRange>
         foreach (var part in parts)
         {
             if (!string.IsNullOrEmpty(part))
+            {
                 result.Add(part);
+            }
         }
         return result;
     }

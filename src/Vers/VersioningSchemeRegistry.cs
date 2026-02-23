@@ -57,7 +57,10 @@ public static class VersioningSchemeRegistry
     public static void Register(IVersioningScheme scheme)
     {
         if (scheme == null)
+        {
             throw new ArgumentNullException(nameof(scheme));
+        }
+
         lock (Lock)
         {
             Schemes[scheme.Scheme] = scheme;

@@ -15,7 +15,9 @@ public sealed class GenericVersionComparer : IVersionComparer
     public int Compare(string version1, string version2)
     {
         if (version1 == version2)
+        {
             return 0;
+        }
 
         var seg1 = Segment(version1);
         var seg2 = Segment(version2);
@@ -45,7 +47,9 @@ public sealed class GenericVersionComparer : IVersionComparer
             }
 
             if (cmp != 0)
+            {
                 return cmp;
+            }
         }
 
         return 0;
@@ -59,7 +63,9 @@ public sealed class GenericVersionComparer : IVersionComparer
     {
         var result = new List<string>();
         if (string.IsNullOrEmpty(version))
+        {
             return result;
+        }
 
         int i = 0;
         while (i < version.Length)
@@ -75,7 +81,9 @@ public sealed class GenericVersionComparer : IVersionComparer
             if (char.IsDigit(version[i]))
             {
                 while (i < version.Length && char.IsDigit(version[i]))
+                {
                     i++;
+                }
             }
             else
             {
@@ -86,7 +94,9 @@ public sealed class GenericVersionComparer : IVersionComparer
                     && version[i] != '-'
                     && version[i] != '_'
                 )
+                {
                     i++;
+                }
             }
 
             result.Add(version.Substring(start, i - start));
@@ -98,11 +108,16 @@ public sealed class GenericVersionComparer : IVersionComparer
     private static bool IsNumeric(string s)
     {
         if (string.IsNullOrEmpty(s))
+        {
             return false;
+        }
+
         foreach (var c in s)
         {
             if (!char.IsDigit(c))
+            {
                 return false;
+            }
         }
         return true;
     }
@@ -113,12 +128,19 @@ public sealed class GenericVersionComparer : IVersionComparer
         a = a.TrimStart('0');
         b = b.TrimStart('0');
         if (a.Length == 0)
+        {
             a = "0";
+        }
+
         if (b.Length == 0)
+        {
             b = "0";
+        }
 
         if (a.Length != b.Length)
+        {
             return a.Length.CompareTo(b.Length);
+        }
 
         return string.Compare(a, b, StringComparison.Ordinal);
     }

@@ -22,20 +22,27 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
     public static VersionConstraint Parse(string constraintString)
     {
         if (string.IsNullOrWhiteSpace(constraintString))
+        {
             throw new VersException("Version constraint string is empty.");
+        }
 
         var s = constraintString.Trim();
 
         if (s == "*")
+        {
             return new VersionConstraint(Comparator.Wildcard, "");
+        }
 
         if (ComparatorExtensions.TryParsePrefix(s, 0, out var comparator, out var length))
         {
             var version = s.Substring(length).Trim();
             if (string.IsNullOrEmpty(version))
+            {
                 throw new VersException(
                     $"Version constraint '{constraintString}' has a comparator but no version."
                 );
+            }
+
             version = UrlDecode(version);
             return new VersionConstraint(comparator, version);
         }
@@ -50,7 +57,9 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
     public bool Matches(string testedVersion, IVersionComparer comparer)
     {
         if (Comparator == Comparator.Wildcard)
+        {
             return true;
+        }
 
         int cmp = comparer.Compare(testedVersion, Version);
         switch (Comparator)
@@ -75,7 +84,10 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
     public override string ToString()
     {
         if (Comparator == Comparator.Wildcard)
+        {
             return "*";
+        }
+
         var prefix = Comparator == Comparator.Equal ? "" : Comparator.ToSymbol();
         return prefix + UrlEncode(Version);
     }
@@ -83,7 +95,10 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
     public bool Equals(VersionConstraint? other)
     {
         if (other is null)
+        {
             return false;
+        }
+
         return Comparator == other.Comparator && Version == other.Version;
     }
 
@@ -94,7 +109,10 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
     private static string UrlDecode(string value)
     {
         if (value.IndexOf('%') < 0)
+        {
             return value;
+        }
+
         return Uri.UnescapeDataString(value);
     }
 
@@ -102,7 +120,9 @@ public sealed class VersionConstraint : IEquatable<VersionConstraint>
     {
         // Only encode comparator/separator characters: > < = ! * |
         if (value.IndexOfAny(new[] { '>', '<', '=', '!', '*', '|' }) < 0)
+        {
             return value;
+        }
 
         var sb = new System.Text.StringBuilder(value.Length);
         foreach (var c in value)

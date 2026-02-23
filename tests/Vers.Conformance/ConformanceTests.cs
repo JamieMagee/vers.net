@@ -26,9 +26,14 @@ public class ConformanceTests
             foreach (var test in tests)
             {
                 if (test.TestType != "containment")
+                {
                     continue;
+                }
+
                 if (test.ExpectedFailure)
+                {
                     continue;
+                }
 
                 var input = test.Input;
                 var vers = input.GetProperty("vers").GetString()!;
@@ -51,9 +56,14 @@ public class ConformanceTests
             foreach (var test in tests)
             {
                 if (test.TestType != "comparison")
+                {
                     continue;
+                }
+
                 if (test.ExpectedFailure)
+                {
                     continue;
+                }
 
                 var input = test.Input;
                 var scheme = input.GetProperty("input_scheme").GetString()!;
@@ -88,9 +98,14 @@ public class ConformanceTests
             foreach (var test in tests)
             {
                 if (test.TestType != "equality")
+                {
                     continue;
+                }
+
                 if (test.ExpectedFailure)
+                {
                     continue;
+                }
 
                 var input = test.Input;
                 var scheme = input.GetProperty("input_scheme").GetString()!;
@@ -149,10 +164,14 @@ public class ConformanceTests
     private static IEnumerable<string> GetTestFiles()
     {
         if (!Directory.Exists(TestDataDir))
+        {
             yield break;
+        }
 
         foreach (var file in Directory.GetFiles(TestDataDir, "*.json"))
+        {
             yield return file;
+        }
     }
 
     private static List<TestCase> LoadTests(string filePath)
@@ -174,7 +193,9 @@ public class ConformanceTests
             };
 
             if (element.TryGetProperty("expected_output", out var eo))
+            {
                 tc.ExpectedOutput = eo;
+            }
 
             result.Add(tc);
         }

@@ -57,7 +57,9 @@ public static class ComparatorExtensions
         length = 0;
 
         if (startIndex >= input.Length)
+        {
             return false;
+        }
 
         // Check two-character comparators first
         if (startIndex + 1 < input.Length)

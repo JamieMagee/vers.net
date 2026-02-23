@@ -15,7 +15,9 @@ public sealed class IntdotVersionComparer : IVersionComparer
     public int Compare(string version1, string version2)
     {
         if (version1 == version2)
+        {
             return 0;
+        }
 
         var seg1 = ParseSegments(version1);
         var seg2 = ParseSegments(version2);
@@ -27,7 +29,9 @@ public sealed class IntdotVersionComparer : IVersionComparer
             long b = i < seg2.Length ? seg2[i] : 0;
             int cmp = a.CompareTo(b);
             if (cmp != 0)
+            {
                 return cmp;
+            }
         }
 
         return 0;
@@ -38,11 +42,16 @@ public sealed class IntdotVersionComparer : IVersionComparer
     public bool IsValid(string version)
     {
         if (string.IsNullOrEmpty(version))
+        {
             return false;
+        }
+
         foreach (var c in version)
         {
             if (!char.IsDigit(c) && c != '.')
+            {
                 return false;
+            }
         }
         return true;
     }
@@ -52,25 +61,33 @@ public sealed class IntdotVersionComparer : IVersionComparer
         // Stop at first non-digit, non-dot character
         int end = 0;
         while (end < version.Length && (char.IsDigit(version[end]) || version[end] == '.'))
+        {
             end++;
+        }
 
         var s = version.Substring(0, end);
         if (string.IsNullOrEmpty(s))
+        {
             return Array.Empty<long>();
+        }
 
         var parts = s.Split('.');
         var result = new long[parts.Length];
         for (int i = 0; i < parts.Length; i++)
         {
             if (string.IsNullOrEmpty(parts[i]))
+            {
                 result[i] = 0;
+            }
             else
+            {
                 long.TryParse(
                     parts[i],
                     NumberStyles.None,
                     CultureInfo.InvariantCulture,
                     out result[i]
                 );
+            }
         }
         return result;
     }

@@ -13,7 +13,9 @@ public sealed class DatetimeVersionComparer : IVersionComparer
     public int Compare(string version1, string version2)
     {
         if (version1 == version2)
+        {
             return 0;
+        }
 
         var dt1 = ParseTimestamp(version1);
         var dt2 = ParseTimestamp(version2);
@@ -43,7 +45,9 @@ public sealed class DatetimeVersionComparer : IVersionComparer
                 out var result
             )
         )
+        {
             return result;
+        }
 
         throw new VersException($"Invalid datetime version: '{version}'. Expected RFC3339 format.");
     }

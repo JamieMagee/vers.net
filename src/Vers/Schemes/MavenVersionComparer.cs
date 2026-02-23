@@ -18,7 +18,9 @@ public sealed class MavenVersionComparer : IVersionComparer
     public int Compare(string version1, string version2)
     {
         if (version1 == version2)
+        {
             return 0;
+        }
 
         var items1 = ParseVersion(version1.ToLowerInvariant());
         var items2 = ParseVersion(version2.ToLowerInvariant());
@@ -40,7 +42,9 @@ public sealed class MavenVersionComparer : IVersionComparer
 
             int cmp = CompareItem(left, right);
             if (cmp != 0)
+            {
                 return cmp;
+            }
         }
         return 0;
     }
@@ -49,58 +53,99 @@ public sealed class MavenVersionComparer : IVersionComparer
     {
         // null padding: treated as "0" for int, "" for string, empty for list
         if (left == null && right == null)
+        {
             return 0;
+        }
 
         if (left == null)
         {
             if (right is long l)
+            {
                 return 0L.CompareTo(l);
+            }
+
             if (right is string s)
+            {
                 return CompareQualifier("", s);
+            }
+
             if (right is List<object> lst)
+            {
                 return CompareItems(new List<object>(), lst);
+            }
+
             return 0;
         }
 
         if (right == null)
         {
             if (left is long l)
+            {
                 return l.CompareTo(0L);
+            }
+
             if (left is string s)
+            {
                 return CompareQualifier(s, "");
+            }
+
             if (left is List<object> lst)
+            {
                 return CompareItems(lst, new List<object>());
+            }
+
             return 0;
         }
 
         // Same type comparisons
         if (left is long leftLong && right is long rightLong)
+        {
             return leftLong.CompareTo(rightLong);
+        }
 
         if (left is string leftStr && right is string rightStr)
+        {
             return CompareQualifier(leftStr, rightStr);
+        }
 
         if (left is List<object> leftList && right is List<object> rightList)
+        {
             return CompareItems(leftList, rightList);
+        }
 
         // Different type comparisons: string < list < int
         // string vs int → string < int → -1
         if (left is string && right is long)
+        {
             return -1;
+        }
+
         if (left is long && right is string)
+        {
             return 1;
+        }
 
         // string vs list → string < list → -1
         if (left is string && right is List<object>)
+        {
             return -1;
+        }
+
         if (left is List<object> && right is string)
+        {
             return 1;
+        }
 
         // list vs int → list < int → -1
         if (left is List<object> && right is long)
+        {
             return -1;
+        }
+
         if (left is long && right is List<object>)
+        {
             return 1;
+        }
 
         return 0;
     }
@@ -125,14 +170,20 @@ public sealed class MavenVersionComparer : IVersionComparer
         bool has2 = QualifierOrder.TryGetValue(q2, out int o2);
 
         if (has1 && has2)
+        {
             return o1.CompareTo(o2);
+        }
 
         if (has1)
+        {
             // known qualifier vs unknown: unknown sorts after "sp" (6)
             return o1.CompareTo(7);
+        }
 
         if (has2)
+        {
             return 7.CompareTo(o2);
+        }
 
         // Both unknown: lexicographic
         return string.Compare(q1, q2, StringComparison.Ordinal);
@@ -173,7 +224,10 @@ public sealed class MavenVersionComparer : IVersionComparer
             {
                 int start = i;
                 while (i < len && char.IsDigit(version[i]))
+                {
                     i++;
+                }
+
                 var numStr = version.Substring(start, i - start);
                 long.TryParse(
                     numStr,
@@ -196,7 +250,10 @@ public sealed class MavenVersionComparer : IVersionComparer
             {
                 int start = i;
                 while (i < len && char.IsLetter(version[i]))
+                {
                     i++;
+                }
+
                 var qualifier = version.Substring(start, i - start);
 
                 // Check if followed by a digit (letter-to-digit transition)

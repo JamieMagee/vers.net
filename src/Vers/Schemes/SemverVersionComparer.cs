@@ -16,7 +16,9 @@ public sealed class SemverVersionComparer : IVersionComparer
     public int Compare(string version1, string version2)
     {
         if (version1 == version2)
+        {
             return 0;
+        }
 
         var v1 = ParseSemver(version1);
         var v2 = ParseSemver(version2);
@@ -24,24 +26,38 @@ public sealed class SemverVersionComparer : IVersionComparer
         // Compare major.minor.patch
         int cmp = v1.Major.CompareTo(v2.Major);
         if (cmp != 0)
+        {
             return cmp;
+        }
 
         cmp = v1.Minor.CompareTo(v2.Minor);
         if (cmp != 0)
+        {
             return cmp;
+        }
 
         cmp = v1.Patch.CompareTo(v2.Patch);
         if (cmp != 0)
+        {
             return cmp;
+        }
 
         // Pre-release comparison
         // No pre-release > has pre-release
         if (v1.Prerelease == null && v2.Prerelease == null)
+        {
             return 0;
+        }
+
         if (v1.Prerelease == null)
+        {
             return 1;
+        }
+
         if (v2.Prerelease == null)
+        {
             return -1;
+        }
 
         return ComparePrerelease(v1.Prerelease, v2.Prerelease);
     }
@@ -89,7 +105,9 @@ public sealed class SemverVersionComparer : IVersionComparer
             {
                 int cmp = aVal.CompareTo(bVal);
                 if (cmp != 0)
+                {
                     return cmp;
+                }
             }
             else if (aNum)
             {
@@ -104,7 +122,9 @@ public sealed class SemverVersionComparer : IVersionComparer
             {
                 int cmp = string.Compare(a, b, StringComparison.Ordinal);
                 if (cmp != 0)
+                {
                     return cmp;
+                }
             }
         }
 
@@ -122,18 +142,24 @@ public sealed class SemverVersionComparer : IVersionComparer
     private static SemverParts ParseSemver(string version)
     {
         if (string.IsNullOrEmpty(version))
+        {
             throw new VersException("Version string is empty.");
+        }
 
         var s = version;
 
         // Strip optional leading 'v' or 'V'
         if (s.Length > 0 && (s[0] == 'v' || s[0] == 'V'))
+        {
             s = s.Substring(1);
+        }
 
         // Remove build metadata (+...)
         var plusIdx = s.IndexOf('+');
         if (plusIdx >= 0)
+        {
             s = s.Substring(0, plusIdx);
+        }
 
         // Extract pre-release (-...)
         string? prerelease = null;
@@ -154,17 +180,25 @@ public sealed class SemverVersionComparer : IVersionComparer
             parts.Length >= 1
             && !long.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out major)
         )
+        {
             throw new VersException($"Invalid semver major version in '{version}'.");
+        }
+
         if (
             parts.Length >= 2
             && !long.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out minor)
         )
+        {
             throw new VersException($"Invalid semver minor version in '{version}'.");
+        }
+
         if (
             parts.Length >= 3
             && !long.TryParse(parts[2], NumberStyles.None, CultureInfo.InvariantCulture, out patch)
         )
+        {
             throw new VersException($"Invalid semver patch version in '{version}'.");
+        }
 
         return new SemverParts
         {
